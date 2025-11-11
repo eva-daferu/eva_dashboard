@@ -24,11 +24,6 @@ st.markdown("""
             padding: 25px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
-        .refresh-btn {
-            display: flex;
-            justify-content: right;
-            margin-top: -50px;
-        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -50,11 +45,22 @@ with col_title:
         </div>
     """, unsafe_allow_html=True)
 
-# ---- Datos base ----
+# ---- Carga de datos ----
 df = generar_base_completa()
-dias_transcurridos = df["Días Transcurridos"].iloc[0]
-max_videos = df["Videos Publicados"].max()
 
+# Si no existe "Días Transcurridos", lo crea con valor 0
+if "Días Transcurridos" not in df.columns:
+    df["Días Transcurridos"] = 0
+
+# Si no existe "Videos Publicados", también lo crea
+if "Videos Publicados" not in df.columns:
+    df["Videos Publicados"] = 0
+
+# Variables seguras
+dias_transcurridos = int(df["Días Transcurridos"].iloc[0])
+max_videos = int(df["Videos Publicados"].max())
+
+# ---- Métricas principales ----
 col1, col2, col3 = st.columns(3)
 col1.metric("Total Seguidores", f"{df['Seguidores'].sum():,}")
 col2.metric("Días desde inicio de publicaciones", f"{dias_transcurridos}")
@@ -63,7 +69,7 @@ col3.metric("Videos publicados", f"{max_videos}")
 # ---- Tabla general ----
 st.markdown("<div class='main-card'>", unsafe_allow_html=True)
 st.markdown("### 🗂️ Datos Generales")
-df_display = df.drop(columns=["Días Transcurridos"])
+df_display = df.drop(columns=["Días Transcurridos"], errors="ignore")
 st.dataframe(df_display, use_container_width=True)
 
 # ---- Gráfica de seguidores ----
@@ -85,11 +91,13 @@ chart2 = alt.Chart(df).mark_arc(innerRadius=60).encode(
 st.altair_chart(chart2, use_container_width=True)
 
 # ---- Promedio diario ----
-st.markdown("### 📈 Promedio de Seguidores Diarios")
-chart3 = alt.Chart(df).mark_line(point=True, color='#2F855A').encode(
-    x='Canal',
-    y='Promedio Seguidores Diarios',
-    tooltip=['Canal', 'Promedio Seguidores Diarios']
-).properties(height=400)
-st.altair_chart(chart3, use_container_width=True)
+if "Promedio Seguidores Diarios" in df.columns:
+    st.markdown("### 📈 Promedio de Seguidores Diarios")
+    chart3 = alt.Chart(df).mark_line(point=True, color='#2F855A').encode(
+        x='Canal',
+        y='Promedio Seguidores Diarios',
+        tooltip=['Canal', 'Promedio Seguidores Diarios']
+    ).properties(height=400)
+    st.altair_chart(chart3, use_container_width=True)
+
 st.markdown("</div>", unsafe_allow_html=True)
