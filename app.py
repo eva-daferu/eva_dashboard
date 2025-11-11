@@ -53,7 +53,7 @@ if st.button("🔄 Refrescar Datos"):
         df = generar_base_completa()
         df.to_excel("redes_sociales_eva.xlsx", index=False)
         st.success("✅ Datos actualizados correctamente")
-        st.experimental_rerun()
+        st.rerun()
 
 st.markdown("""
     <hr>
@@ -61,3 +61,4 @@ st.markdown("""
     Desarrollado por Eva EcoD 🌿 | Panel público compartido en Streamlit Cloud
     </p>
 """, unsafe_allow_html=True)
+
